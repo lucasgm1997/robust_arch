@@ -13,7 +13,9 @@ class FakeAuthRepository implements AuthRepository {
   Result<Session>? loginResult;
   Result<void> logoutResult = const Result.ok(null);
   Result<Session?> restoreResult = const Result.ok(null);
+  Result<List<Session>> restoreAllResult = const Result.ok([]);
   Result<void> saveResult = const Result.ok(null);
+  Result<void> removeResult = const Result.ok(null);
 
   @override
   Future<Result<Session>> login(AuthCredentials credentials) async {
@@ -27,7 +29,13 @@ class FakeAuthRepository implements AuthRepository {
   Future<Result<Session?>> restoreSession() async => restoreResult;
 
   @override
+  Future<Result<List<Session>>> restoreAllSessions() async => restoreAllResult;
+
+  @override
   Future<Result<void>> saveSession(Session session) async => saveResult;
+
+  @override
+  Future<Result<void>> removeSession(String userId) async => removeResult;
 }
 
 void main() {
@@ -86,6 +94,30 @@ void main() {
       await authUseCase.logout();
 
       expect(sessionManager.currentSession, isNull);
+    });
+
+    test('addAccount tracks multiple sessions', () async {
+      fakeRepo.loginResult = Result.ok(testSession);
+      await authUseCase.login(
+        const EmailCredentials(email: 'test@test.com', password: 'pass'),
+      );
+
+      final secondSession = Session(
+        user: const UserEntity(id: '2', name: 'Other', email: 'other@test.com'),
+        token: 'token_456',
+        expiresAt: DateTime.now().add(const Duration(hours: 1)),
+      );
+      fakeRepo.loginResult = Result.ok(secondSession);
+      await authUseCase.addAccount(
+        const EmailCredentials(email: 'other@test.com', password: 'pass'),
+      );
+
+      expect(authUseCase.activeSessions.length, 2);
+      expect(sessionManager.currentSession!.user.id, '2');
+
+      // Switch back to first
+      authUseCase.switchSession(testSession);
+      expect(sessionManager.currentSession!.user.id, '1');
     });
   });
 

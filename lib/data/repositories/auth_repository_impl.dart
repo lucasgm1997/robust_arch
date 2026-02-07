@@ -39,6 +39,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Result<List<Session>>> restoreAllSessions() async {
+    return _localDataSource.getAllSessions();
+  }
+
+  @override
   Future<Result<void>> saveSession(Session session) async {
     final model = SessionModel(
       user: session.user,
@@ -46,5 +51,10 @@ class AuthRepositoryImpl implements AuthRepository {
       expiresAt: session.expiresAt,
     );
     return _localDataSource.saveSession(model);
+  }
+
+  @override
+  Future<Result<void>> removeSession(String userId) async {
+    return _localDataSource.deleteSessionById(userId);
   }
 }

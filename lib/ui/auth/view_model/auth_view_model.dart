@@ -13,6 +13,8 @@ class AuthViewModel extends ChangeNotifier {
     loginWithGoogle = Command0(_loginWithGoogle);
     loginWithApple = Command0(_loginWithApple);
     loginWithPhone = Command1(_loginWithPhone);
+    addAccountWithEmail = Command1(_addAccountWithEmail);
+    addAccountWithGoogle = Command0(_addAccountWithGoogle);
     logout = Command0(_logout);
     restoreSession = Command0(_restoreSession)..execute();
   }
@@ -22,10 +24,14 @@ class AuthViewModel extends ChangeNotifier {
   Session? _session;
   Session? get session => _session;
 
+  List<Session> get allSessions => _authUseCase.activeSessions;
+
   late final Command1<Session, EmailCredentials> loginWithEmail;
   late final Command0<Session> loginWithGoogle;
   late final Command0<Session> loginWithApple;
   late final Command1<Session, PhoneCredentials> loginWithPhone;
+  late final Command1<Session, EmailCredentials> addAccountWithEmail;
+  late final Command0<Session> addAccountWithGoogle;
   late final Command0<void> logout;
   late final Command0<Session?> restoreSession;
 
@@ -72,6 +78,27 @@ class AuthViewModel extends ChangeNotifier {
       notifyListeners();
     }
     return result;
+  }
+
+  Future<Result<Session>> _addAccountWithEmail(
+    EmailCredentials creds,
+  ) async {
+    final result = await _authUseCase.addAccount(creds);
+    _handleLoginResult(result);
+    return result;
+  }
+
+  Future<Result<Session>> _addAccountWithGoogle() async {
+    const creds = GoogleCredentials(idToken: 'mock_google_token');
+    final result = await _authUseCase.addAccount(creds);
+    _handleLoginResult(result);
+    return result;
+  }
+
+  void switchAccount(Session session) {
+    _authUseCase.switchSession(session);
+    _session = session;
+    notifyListeners();
   }
 
   void _handleLoginResult(Result<Session> result) {
