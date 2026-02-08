@@ -65,7 +65,8 @@ class AuthViewModel extends ChangeNotifier {
   Future<Result<void>> _logout() async {
     final result = await _authUseCase.logout();
     if (result is Ok) {
-      _session = null;
+      // SessionManager auto-falls back to the next account, or null
+      _session = _authUseCase.currentSession;
       notifyListeners();
     }
     return result;

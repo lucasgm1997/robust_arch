@@ -8,10 +8,7 @@ import '../ui/home/widgets/home_screen.dart';
 /// Simple Navigator 2.0 router driven by the SessionManager stream.
 class AppRouterDelegate extends RouterDelegate<Object>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<Object> {
-  AppRouterDelegate({
-    required this.sessionManager,
-    required this.viewModel,
-  }) {
+  AppRouterDelegate({required this.sessionManager, required this.viewModel}) {
     sessionManager.sessionStream.listen((_) => notifyListeners());
   }
 
@@ -28,9 +25,7 @@ class AppRouterDelegate extends RouterDelegate<Object>
       key: navigatorKey,
       pages: [
         if (session == null)
-          MaterialPage(
-            child: LoginScreen(viewModel: viewModel),
-          )
+          MaterialPage(child: LoginScreen(viewModel: viewModel))
         else
           MaterialPage(
             child: HomeScreen(session: session, viewModel: viewModel),

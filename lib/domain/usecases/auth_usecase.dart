@@ -27,12 +27,13 @@ class AuthUseCase {
   }
 
   Future<Result<void>> logout() async {
-    final result = await _repository.logout();
-    switch (result) {
-      case Ok():
-        _sessionManager.clearSession();
-      case Error():
-        break;
+    final current = _sessionManager.currentSession;
+    if (current == null) return const Result.ok(null);
+
+    final result = await _repository.removeSession(current.user.id);
+    if (result is Ok) {
+      // removeSession auto-switches to the next account if one exists
+      _sessionManager.removeSession(current);
     }
     return result;
   }
@@ -86,5 +87,6 @@ class AuthUseCase {
     return result;
   }
 
+  Session? get currentSession => _sessionManager.currentSession;
   List<Session> get activeSessions => _sessionManager.sessions;
 }

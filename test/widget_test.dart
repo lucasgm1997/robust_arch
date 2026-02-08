@@ -119,6 +119,31 @@ void main() {
       authUseCase.switchSession(testSession);
       expect(sessionManager.currentSession!.user.id, '1');
     });
+
+    test('logout with multiple accounts falls back to next account', () async {
+      fakeRepo.loginResult = Result.ok(testSession);
+      await authUseCase.login(
+        const EmailCredentials(email: 'test@test.com', password: 'pass'),
+      );
+
+      final secondSession = Session(
+        user: const UserEntity(id: '2', name: 'Other', email: 'other@test.com'),
+        token: 'token_456',
+        expiresAt: DateTime.now().add(const Duration(hours: 1)),
+      );
+      fakeRepo.loginResult = Result.ok(secondSession);
+      await authUseCase.addAccount(
+        const EmailCredentials(email: 'other@test.com', password: 'pass'),
+      );
+
+      // Current is account 2, logout should fall back to account 1
+      expect(sessionManager.currentSession!.user.id, '2');
+      await authUseCase.logout();
+
+      expect(sessionManager.currentSession, isNotNull);
+      expect(sessionManager.currentSession!.user.id, '1');
+      expect(authUseCase.activeSessions.length, 1);
+    });
   });
 
   group('Result pattern', () {
