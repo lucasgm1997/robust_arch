@@ -1,9 +1,9 @@
-**Project: Robust Arch**
+**Projeto: Robust Arch**
 
-- **Description:** A Flutter project demonstrating clean architecture (domain/data/core/ui), session management, and multiple accounts (login/email/google, account switching, logout).
-- **Location:** workspace root
+- **Descrição:** Projeto Flutter que demonstra uma arquitetura limpa (domain/data/core/ui), gerenciamento de sessão e múltiplas contas (login/email/google, troca de conta, logout).
+- **Local:** raiz do workspace
 
-**File Tree (tree visualization)**
+**Árvore de Arquivos (visualização em árvore)**
 
 ```text
 robust_arch/
@@ -39,17 +39,17 @@ robust_arch/
 └─ pubspec.yaml
 ```
 
-Note: the tree above is a more readable hierarchical visualization of the main directories. Items like generated files in `build/` were kept at the top to indicate their presence, but are not expanded.
+Obs: a árvore acima é uma visualização hierárquica mais legível dos diretórios principais. Itens como arquivos gerados em `build/` foram mantidos no topo para indicar presença, mas não estão expandidos.
 
-**Architecture (overview)**
+**Arquitetura (visão geral)**
 
-- **Presentation Layer (UI):** Widgets and ViewModels that display screens and react to changes; for example, `home_screen.dart` uses `AuthViewModel` for login/logout actions and session management.
-- **Domain Layer (Domain):** Entities (`Session`, `AuthCredentials`), use cases responsible for application logic independent of any framework.
-- **Data Layer (Data):** Data sources and repositories that implement domain contracts, model conversion, and persistence (e.g., secure storage, simulated HTTP calls).
-- **Core:** Utilities and cross-cutting types such as `Command`, `Result`, and `Failure` for handling asynchronous states and errors.
-- **Config:** `service_locator.dart` registers dependencies; `app_router.dart` handles routes/navigation.
+- **Camada de Apresentação (UI):** Widgets e ViewModels que exibem telas e reagem a mudanças; por exemplo `home_screen.dart` usa `AuthViewModel` para ações de login/logout e gestão de sessões.
+- **Camada de Domínio (Domain):** Entidades (`Session`, `AuthCredentials`), casos de uso (usecases) responsáveis pela lógica da aplicação independente de framework.
+- **Camada de Dados (Data):** Data sources e repositórios que implementam contratos de domínio, conversão de modelos e persistência (ex.: armazenamento seguro, chamadas HTTP simuladas).
+- **Core:** Utilitários e tipos transversais como `Command`, `Result` e `Failure` para tratamento de estados assíncronos e erros.
+- **Config:** `service_locator.dart` registra dependências; `app_router.dart` trata rotas/navegação.
 
-**Onion Architecture Visualization**
+**Visualização Estilo Cebola (Onion Architecture)**
 
 ```text
 ┌──────────────────────────────────────────────────────────────┐
@@ -85,7 +85,7 @@ Note: the tree above is a more readable hierarchical visualization of the main d
 │                                                              │
 └──────────────────────────────────────────────────────────────┘
 
-Dependency Flow (from outside to inside):
+Fluxo de Dependências (de fora para dentro):
 ┌────────────┐         ┌──────────────┐         ┌─────────────┐
 │ UI Layer   │────────▶│ Domain Layer │────────▶│ Core Layer  │
 │  (Widgets) │         │ (UseCases)   │         │ (Utilities) │
@@ -98,79 +98,79 @@ Dependency Flow (from outside to inside):
                         └──────────────┘
 ```
 
-**Onion Architecture Principles Applied:**
+**Princípios da Arquitetura Cebola aplicados:**
 
-- **Framework Independence:** The Domain layer does not know Flutter or any external framework.
-- **Testability:** Each layer can be tested in isolation through dependency injection.
-- **Business Rules at the Center:** UseCases contain business logic, not the UI.
-- **Centripetal Flow:** Dependencies always point to the center (Direction Rule).
+- **Independência de Framework:** A camada de Domain não conhece Flutter ou qualquer framework externo.
+- **Testabilidade:** Cada camada pode ser testada isoladamente através de injeção de dependências.
+- **Regras de Negócio no Centro:** UseCases contêm a lógica de negócio, não a UI.
+- **Fluxo Centrípeto:** Dependências apontam sempre para o centro (Direction Rule).
 
-**Use Case Diagram (Mermaid / Alternative Flowchart)**
+**Diagrama de Casos de Uso (Mermaid / Flowchart alternativo)**
 
-> Some renderers have limited support for `usecaseDiagram`. Below is a `flowchart` version that is usually displayed correctly, followed by a detailed sequence diagram of the login flow.
+> Alguns renderizadores têm suporte limitado ao `usecaseDiagram`. Abaixo há uma versão em `flowchart` que costuma ser exibida corretamente, seguida por um diagrama de sequência detalhando o fluxo de login.
 
 ```mermaid
 flowchart TD
-  User[User] -->|Visits| LoginPage[Login Page]
-  User -->|Views| Home[Home]
-  LoginPage -->|calls| AuthViewModel[AuthViewModel]
-  AuthViewModel -->|executes| LoginUseCase[LoginUseCase]
-  LoginUseCase -->|uses| AuthRepository[AuthRepository]
-  AuthRepository -->|saves| SessionManager[SessionManager]
-  LoginUseCase -->|returns| AuthViewModel
-  AuthViewModel -->|navigates| Home
+  User[Usuário] -->|Visita| LoginPage[Login Page]
+  User -->|Visualiza| Home[Home]
+  LoginPage -->|chama| AuthViewModel[AuthViewModel]
+  AuthViewModel -->|executa| LoginUseCase[LoginUseCase]
+  LoginUseCase -->|usa| AuthRepository[AuthRepository]
+  AuthRepository -->|salva| SessionManager[SessionManager]
+  LoginUseCase -->|retorna| AuthViewModel
+  AuthViewModel -->|navega| Home
 ```
 
-**Sequence Diagram: login flow (detailed)**
+**Diagrama de Sequência: fluxo de login (detalhado)**
 
 ```mermaid
 sequenceDiagram
-  participant U as User
+  participant U as Usuário
   participant LP as LoginPage
   participant VM as AuthViewModel
   participant UC as LoginUseCase
   participant Repo as AuthRepository
   participant SM as SessionManager
 
-  U->>LP: sends credentials (email/password)
+  U->>LP: envia credenciais (email/password)
   LP->>VM: _onEmailLogin(creds)
   VM->>UC: execute(creds)
   UC->>Repo: login(creds)
   Repo->>SM: saveSession(session)
-  SM-->>Repo: confirmation
+  SM-->>Repo: confirmação
   Repo-->>UC: session / result
-  UC-->>VM: login result (success/failure)
-  VM-->>LP: updates UI / navigates to Home
-  LP-->>U: shows Home or error message
+  UC-->>VM: resultado do login (success/failure)
+  VM-->>LP: atualiza UI / navega para Home
+  LP-->>U: mostra Home ou mensagem de erro
 ```
 
-**Main Flows**
+**Fluxos principais**
 
-- **Login / Add Account:** the user provides `EmailCredentials` (or Google); ViewModel fires `addAccountWithEmail` or `addAccountWithGoogle`, which call appropriate use cases to create/validate session.
-- **Switch Account:** from the `HomeScreen` the user opens the account selector (bottom sheet) and chooses another session; the ViewModel executes `switchAccount(session)` to update the active session.
-- **Logout:** button executes `logout` (a `Command`) that performs session cleanup and updates the UI with loading state.
+- **Login / Adicionar Conta:** o usuário fornece `EmailCredentials` (ou Google); ViewModel dispara `addAccountWithEmail` ou `addAccountWithGoogle`, que chamam casos de uso apropriados para criar/validar sessão.
+- **Trocar Conta:** a partir do `HomeScreen` o usuário abre o seletor de contas (bottom sheet) e escolhe outra sessão; o ViewModel executa `switchAccount(session)` para atualizar a sessão ativa.
+- **Logout:** botão executa `logout` (um `Command`) que realiza limpeza de sessão e atualiza a UI com estado de loading.
 
-**Main Components (where to look)**
+**Principais componentes (onde procurar)**
 
 - **Entrypoint:** [lib/main.dart](lib/main.dart)
-- **Routes:** [lib/config/app_router.dart](lib/config/app_router.dart)
-- **Dependency Injection:** [lib/config/service_locator.dart](lib/config/service_locator.dart)
-- **Auth ViewModel:** [lib/ui/auth/view_model/auth_view_model.dart](lib/ui/auth/view_model/auth_view_model.dart)
-- **Home Screen:** [lib/ui/home/widgets/home_screen.dart](lib/ui/home/widgets/home_screen.dart)
+- **Rotas:** [lib/config/app_router.dart](lib/config/app_router.dart)
+- **Injeção de dependências:** [lib/config/service_locator.dart](lib/config/service_locator.dart)
+- **ViewModel Auth:** [lib/ui/auth/view_model/auth_view_model.dart](lib/ui/auth/view_model/auth_view_model.dart)
+- **Tela Home:** [lib/ui/home/widgets/home_screen.dart](lib/ui/home/widgets/home_screen.dart)
 
-**How to Run (locally)**
+**Como rodar (local)**
 
-1. Install dependencies: `flutter pub get`
-2. Run on emulator or device: `flutter run`
+1. Instalar dependências: `flutter pub get`
+2. Rodar no emulador ou dispositivo: `flutter run`
 
-**Notes and Next Suggestions**
+**Observações e próximas sugestões**
 
-- Include additional diagrams (layered architecture, login sequence).
-- Add more extensive README with build commands and development flows.
-- Unit test coverage for domain use cases.
+- Incluir diagramas adicionais (arquitetura em camadas, sequência de login).
+- Adicionar README mais extenso com comandos de build e fluxos de desenvolvimento.
+- Cobertura de testes unitários para casos de uso do domínio.
 
 ----
-_Automatically generated by the project assistant — if you want, I'll update the content with more details (sequence diagrams, class architecture, or complete files)._
+_Gerado automaticamente pelo assistente de projeto — se quiser, atualizo o conteúdo com mais detalhes (diagramas de sequência, arquitetura de classes ou arquivos completos)._
 
 ![alt text](docs/login_page.png)
 
