@@ -171,3 +171,13 @@ sequenceDiagram
 
 ----
 _Gerado automaticamente pelo assistente de projeto — se quiser, atualizo o conteúdo com mais detalhes (diagramas de sequência, arquitetura de classes ou arquivos completos)._
+
+![alt text](login_page.png)
+
+![alt text](welcome_apple_user.png)
+
+![alt text](change_acount_modal.png)
+
+![alt text](add_account_modal.png)
+
+![alt text](welcome_google_user.png)
