@@ -169,8 +169,7 @@ sequenceDiagram
 - Adicionar README mais extenso com comandos de build e fluxos de desenvolvimento.
 - Cobertura de testes unitários para casos de uso do domínio.
 
-----
-_Gerado automaticamente pelo assistente de projeto — se quiser, atualizo o conteúdo com mais detalhes (diagramas de sequência, arquitetura de classes ou arquivos completos)._
+## Screenshots
 
 ![alt text](docs/login_page.png)
 
